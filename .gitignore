@@ -1,0 +1,36 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Editor
+.vscode/
+.DS_Store
+
+# Env
+.env
+.env.*
+*.local
+
+# Vite cache
+.vite/
+vite.config.timestamp-*
+
+# Env
+.env
+.env.local
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional
+coverage/
+.cache/
+
+docker-data

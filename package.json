@@ -1,0 +1,14 @@
+{
+  "name": "sync-table-test-task",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter bff dev\" \"pnpm --filter frontend dev\"",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:bff": "pnpm --filter bff dev",
+    "build": "pnpm --filter bff build && pnpm --filter frontend build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+        "baseUrl": "./src",
+        "paths": {
+            "@components/*": ["components/*"],
+            "@modules/*": ["modules/*"],
+            "@routes/*": ["routes/*"],
+            "@services/*": ["services/*"],
+            "@types/*": ["types/*"]
+        },
+
+        "types": ["vite/client"],
+
+        /* Bundler / Vite specifics */
+        "allowImportingTsExtensions": true,
+        "verbatimModuleSyntax": true,
+        "moduleDetection": "force",
+        "noEmit": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+}
