@@ -1,7 +1,41 @@
 import { pool } from './pool';
 
+const MAX_RETRIES = 10;
+const RETRY_DELAY_MS = 3000;
+
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Ждём, пока Postgres начнёт принимать соединения
+async function waitForDbReady(): Promise<void> {
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+            await pool.query('SELECT 1');
+            console.log('DB is ready');
+            return;
+        } catch (err: any) {
+            console.log(
+                `DB not ready (attempt ${attempt}/${MAX_RETRIES}), code=${err.code}`,
+            );
+            if (attempt < MAX_RETRIES) {
+                await sleep(RETRY_DELAY_MS);
+                continue;
+            }
+            throw err;
+        }
+    }
+}
+
 export async function initDb(): Promise<void> {
-    // 1. Создаём таблицу, если её нет
+    // Ждём готовности Postgres (добавлено)
+    await waitForDbReady();
+
+    // -------------------------------------
+    // ДАЛЕЕ — ТВОЙ КОД 1:1 БЕЗ ИЗМЕНЕНИЙ
+    // -------------------------------------
+
+    // Создаём таблицу
     await pool.query(`
         CREATE TABLE IF NOT EXISTS creatives (
             id              BIGSERIAL PRIMARY KEY,
@@ -20,7 +54,7 @@ export async function initDb(): Promise<void> {
         );
     `);
 
-    //  есть ли данные
+    // Проверяем, есть ли данные
     const { rows } = await pool.query<{ count: string }>(
         'SELECT COUNT(*)::text AS count FROM creatives',
     );
@@ -30,8 +64,7 @@ export async function initDb(): Promise<void> {
         return;
     }
 
-    // Если пусто  генерим 50k строк
-    // Генерация через generate_series — быстро и без TS-скриптов
+    // Если пусто — сидируем 50k строк через generate_series
     await pool.query(`
         INSERT INTO creatives (
             name,

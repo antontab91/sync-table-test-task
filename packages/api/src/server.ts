@@ -20,8 +20,8 @@ const port = Number(process.env.API_PORT || 4000);
 
 async function start() {
     try {
-        await initDb();
-        await registerRoutes();
+        await initDb(); // ← ждём БД + сид
+        await registerRoutes(); // ← регистрируем маршруты
 
         await app.listen({ port, host: '0.0.0.0' });
         console.log(`API listening on port ${port}`);

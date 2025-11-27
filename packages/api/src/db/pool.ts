@@ -1,11 +1,12 @@
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-    throw new Error('DATABASE_URL is not set');
-}
+dotenv.config();
 
 export const pool = new Pool({
-    connectionString,
+    host: process.env.POSTGRES_HOST || 'db',
+    port: Number(process.env.POSTGRES_PORT || 5432),
+    user: process.env.POSTGRES_USER || 'app',
+    password: process.env.POSTGRES_PASSWORD || 'app',
+    database: process.env.POSTGRES_DB || 'app',
 });
