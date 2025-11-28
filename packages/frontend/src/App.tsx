@@ -1,16 +1,15 @@
 import { useMemo } from 'react';
-
 import {
     flexRender,
     getCoreRowModel,
     useReactTable,
+    type ColumnDef,
 } from '@tanstack/react-table';
-import type { ColumnDef } from '@tanstack/react-table';
-
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchRows } from './shared/api/rows';
 import type { CreativeRow } from './shared/types';
+
 const PAGE_SIZE = 300;
 
 function App() {
@@ -59,11 +58,15 @@ function App() {
                     border: '1px solid #ccc',
                 }}
             >
-                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                <table
+                    style={{
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                    }}
+                >
                     <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
-                                11111111111
                                 {headerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}

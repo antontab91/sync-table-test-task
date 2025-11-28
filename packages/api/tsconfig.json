@@ -6,6 +6,6 @@
         "moduleResolution": "node",
         "resolveJsonModule": true
     },
-    "include": ["src"],
+    "include": ["src", "src/services/ws"],
     "exclude": ["node_modules", "dist"]
 }

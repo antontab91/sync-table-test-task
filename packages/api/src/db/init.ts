@@ -3,7 +3,7 @@ import { pool } from './pool';
 const MAX_RETRIES = 10;
 const RETRY_DELAY_MS = 3000;
 
-function sleep(ms: number) {
+function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 

@@ -13,3 +13,18 @@ export interface CreativeRow {
     created_at: string;
     updated_at: string;
 }
+
+export interface FetchRowsParams {
+    limit: number;
+    offset: number;
+    search?: string;
+    status?: string;
+    owner?: string;
+    orderBy?: string;
+    orderDir?: 'asc' | 'desc';
+}
+
+export interface FetchRowsResponse {
+    rows: CreativeRow[];
+    total: number;
+}
