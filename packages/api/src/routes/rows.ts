@@ -1,22 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { pool } from '../db/pool';
-
-// дубль , есть типы , нужно вынести в отдельный файл
-export interface CreativeRow {
-    id: number;
-    name: string;
-    status: string;
-    owner: string;
-    channel: string;
-    campaign: string;
-    budget: string;
-    impressions: number;
-    clicks: number;
-    ctr: string;
-    conversions: number;
-    created_at: string;
-    updated_at: string;
-}
+import type { CreativeRow } from '../types';
 
 export async function registerRowsRoutes(app: FastifyInstance): Promise<void> {
     app.get('/rows', async (request) => {

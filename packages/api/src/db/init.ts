@@ -7,7 +7,6 @@ function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Ждём, пока Postgres начнёт принимать соединения
 async function waitForDbReady(): Promise<void> {
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
@@ -28,14 +27,8 @@ async function waitForDbReady(): Promise<void> {
 }
 
 export async function initDb(): Promise<void> {
-    // Ждём готовности Postgres (добавлено)
     await waitForDbReady();
 
-    // -------------------------------------
-    // ДАЛЕЕ — ТВОЙ КОД 1:1 БЕЗ ИЗМЕНЕНИЙ
-    // -------------------------------------
-
-    // Создаём таблицу
     await pool.query(`
         CREATE TABLE IF NOT EXISTS creatives (
             id              BIGSERIAL PRIMARY KEY,
@@ -54,7 +47,6 @@ export async function initDb(): Promise<void> {
         );
     `);
 
-    // Проверяем, есть ли данные
     const { rows } = await pool.query<{ count: string }>(
         'SELECT COUNT(*)::text AS count FROM creatives',
     );
@@ -64,7 +56,6 @@ export async function initDb(): Promise<void> {
         return;
     }
 
-    // Если пусто — сидируем 50k строк через generate_series
     await pool.query(`
         INSERT INTO creatives (
             name,
