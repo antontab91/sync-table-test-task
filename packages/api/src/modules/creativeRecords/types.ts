@@ -14,19 +14,9 @@ export interface CreativeRow {
     updated_at: string;
 }
 
-export type EditableField =
-    | 'name'
-    | 'status'
-    | 'owner'
-    | 'channel'
-    | 'campaign'
-    | 'budget'
-    | 'impressions'
-    | 'clicks'
-    | 'ctr'
-    | 'conversions';
-
-export type CreativeUpdatePayload = Partial<Pick<CreativeRow, EditableField>>;
+export interface CreativeUpdatePayload {
+    [key: string]: string | number | undefined;
+}
 
 export interface ListRawParams {
     limit?: unknown;

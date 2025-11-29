@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchRows } from './shared/api/rows';
 import type { CreativeRow } from './shared/types';
 
-const PAGE_SIZE = 300;
+const PAGE_SIZE = 200;
 
 function App() {
     const { data, isLoading, isError, error } = useQuery({

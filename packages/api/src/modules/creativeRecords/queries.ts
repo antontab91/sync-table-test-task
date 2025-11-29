@@ -1,26 +1,28 @@
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { pool } from '../../db/pool';
+import {
+    SORTABLE_COLUMNS,
+    EDITABLE_COLUMN_SET,
+    DEFAULT_ORDER_BY,
+} from './constants';
+
 import type {
     CreativeRow,
+    CreativeUpdatePayload,
     ListParamsNormalized,
     ListResult,
-    CreativeUpdatePayload,
 } from './types';
 
-const SORTABLE_COLUMNS = new Set<string>([
-    'id',
-    'name',
-    'status',
-    'owner',
-    'channel',
-    'campaign',
-    'budget',
-    'impressions',
-    'clicks',
-    'ctr',
-    'conversions',
-    'created_at',
-    'updated_at',
-]);
+const getCreativesSql = readFileSync(
+    resolve(__dirname, '../../db/sql/getCreatives.sql'),
+    'utf8',
+);
+
+const updateCreativeSql = readFileSync(
+    resolve(__dirname, '../../db/sql/updateCreative.sql'),
+    'utf8',
+);
 
 export async function listCreativeRecords(
     params: ListParamsNormalized,
@@ -28,89 +30,57 @@ export async function listCreativeRecords(
     const { limit, offset, search, status, owner, orderBy, orderDir } = params;
 
     const whereParts: string[] = [];
-    const baseParams: unknown[] = [];
+    const baseParams: any[] = [];
     let idx = 1;
 
     if (search) {
-        const text = String(search);
-        const numeric = Number(text);
-        if (Number.isFinite(numeric)) {
-            whereParts.push(
-                `(name ILIKE $${idx} OR campaign ILIKE $${idx} OR owner ILIKE $${idx} OR id = $${
-                    idx + 1
-                })`,
-            );
-            baseParams.push(`%${text}%`, numeric);
-            idx += 2;
-        } else {
-            whereParts.push(
-                `(name ILIKE $${idx} OR campaign ILIKE $${idx} OR owner ILIKE $${idx})`,
-            );
-            baseParams.push(`%${text}%`);
-            idx += 1;
-        }
+        const like = `%${search}%`;
+        whereParts.push(
+            `(name ILIKE $${idx} OR campaign ILIKE $${idx} OR owner ILIKE $${idx})`,
+        );
+        baseParams.push(like);
+        idx++;
     }
 
     if (status) {
         whereParts.push(`status = $${idx}`);
         baseParams.push(status);
-        idx += 1;
+        idx++;
     }
 
     if (owner) {
         whereParts.push(`owner = $${idx}`);
         baseParams.push(owner);
-        idx += 1;
+        idx++;
     }
 
-    const whereSql =
-        whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : '';
+    const whereSql = whereParts.length
+        ? `WHERE ${whereParts.join(' AND ')}`
+        : '';
 
-    const safeOrderBy = SORTABLE_COLUMNS.has(String(orderBy))
-        ? String(orderBy)
-        : 'id';
-    const safeOrderDir =
-        String(orderDir).toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    const safeOrderBy = SORTABLE_COLUMNS.has(orderBy)
+        ? orderBy
+        : DEFAULT_ORDER_BY;
+    const safeOrderDir = orderDir?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
-    const rowsSql = `
-        SELECT
-            id,
-            name,
-            status,
-            owner,
-            channel,
-            campaign,
-            budget::text,
-            impressions,
-            clicks,
-            ctr::text,
-            conversions,
-            created_at::text,
-            updated_at::text
-        FROM creatives
-        ${whereSql}
-        ORDER BY ${safeOrderBy} ${safeOrderDir}
-        LIMIT $${idx} OFFSET $${idx + 1}
-    `;
+    let sql = getCreativesSql
+        .replace('/*WHERE*/', whereSql)
+        .replace('/*ORDERBY*/', safeOrderBy)
+        .replace('/*ORDERDIR*/', safeOrderDir)
+        .replace('/*LIMIT*/', `$${idx}`)
+        .replace('/*OFFSET*/', `$${idx + 1}`);
 
     const queryParams = [...baseParams, limit, offset];
 
-    const { rows } = await pool.query<CreativeRow>(rowsSql, queryParams);
+    const { rows } = await pool.query<CreativeRow>(sql, queryParams);
 
-    const countSql = `
-        SELECT COUNT(*)::text AS count
-        FROM creatives
-        ${whereSql}
-    `;
+    const countSql = `SELECT COUNT(*)::text AS count FROM creatives ${whereSql}`;
+    const { rows: countRows } = await pool.query(countSql, baseParams);
 
-    const { rows: countRows } = await pool.query<{ count: string }>(
-        countSql,
-        baseParams,
-    );
-
-    const total = Number(countRows[0]?.count ?? '0');
-
-    return { rows, total };
+    return {
+        rows,
+        total: Number(countRows[0]?.count ?? '0'),
+    };
 }
 
 export async function updateCreativeRecord(
@@ -121,55 +91,24 @@ export async function updateCreativeRecord(
 
     if (entries.length === 0) return null;
 
-    const ALLOWED = new Set([
-        'name',
-        'status',
-        'owner',
-        'channel',
-        'campaign',
-        'budget',
-        'impressions',
-        'clicks',
-        'ctr',
-        'conversions',
-    ]);
-
     const setParts: string[] = [];
-    const params: unknown[] = [];
+    const params: any[] = [];
     let idx = 1;
 
     for (const [key, value] of entries) {
-        if (!ALLOWED.has(key)) continue;
+        if (!EDITABLE_COLUMN_SET.has(key)) continue;
         setParts.push(`${key} = $${idx}`);
         params.push(value);
-        idx += 1;
+        idx++;
     }
 
     if (setParts.length === 0) return null;
 
-    setParts.push(`updated_at = NOW()`);
+    let sql = updateCreativeSql
+        .replace('/*SET*/', setParts.join(', '))
+        .replace('$ID', `$${idx}`);
 
     params.push(id);
-
-    const sql = `
-        UPDATE creatives
-        SET ${setParts.join(', ')}
-        WHERE id = $${idx}
-        RETURNING
-            id,
-            name,
-            status,
-            owner,
-            channel,
-            campaign,
-            budget::text,
-            impressions,
-            clicks,
-            ctr::text,
-            conversions,
-            created_at::text,
-            updated_at::text
-    `;
 
     const { rows } = await pool.query<CreativeRow>(sql, params);
 
