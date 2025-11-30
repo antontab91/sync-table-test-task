@@ -1,3 +1,4 @@
+// packages/frontend/src/modules/creatives/types.ts
 export interface CreativeRow {
     id: number;
     name: string;
@@ -14,17 +15,11 @@ export interface CreativeRow {
     updated_at: string;
 }
 
-export interface FetchRowsParams {
-    limit: number;
-    offset: number;
-    search?: string;
-    status?: string;
-    owner?: string;
-    orderBy?: string;
-    orderDir?: 'asc' | 'desc';
+export interface CreativeUpdatePayload {
+    [key: string]: string | number | undefined;
 }
 
-export interface FetchRowsResponse {
+export interface ListResponse {
     rows: CreativeRow[];
     total: number;
 }
