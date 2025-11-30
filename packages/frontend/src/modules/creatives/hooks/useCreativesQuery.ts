@@ -13,6 +13,16 @@ import type {
 } from '../types';
 
 const PAGE_SIZE = 100;
+export const CREATIVES_QUERY_KEY = ['creatives'] as const;
+
+type EditVariables = {
+    id: number;
+    payload: CreativeUpdatePayload;
+};
+
+type EditContext = {
+    previousData?: InfiniteData<ListResponse>;
+};
 
 function fetchCreatives(page: number): Promise<ListResponse> {
     return apiClient
@@ -27,64 +37,73 @@ function fetchCreatives(page: number): Promise<ListResponse> {
 
 export function useCreativesQuery() {
     const queryClient = useQueryClient();
-    const queryKey = ['creatives'] as const;
 
-    const listQuery = useInfiniteQuery<ListResponse, Error>({
-        queryKey,
+    const listQuery = useInfiniteQuery({
+        queryKey: CREATIVES_QUERY_KEY,
         initialPageParam: 0,
         queryFn: ({ pageParam }) => fetchCreatives((pageParam as number) ?? 0),
-        getNextPageParam: (lastPage: ListResponse, pages: ListResponse[]) => {
-            const loaded = pages.reduce(
-                (sum: number, page: ListResponse) => sum + page.rows.length,
+        getNextPageParam: (lastPage, allPages) => {
+            const loadedRows = allPages.reduce(
+                (sum, page) => sum + page.rows.length,
                 0,
             );
 
-            return loaded < lastPage.total ? pages.length : undefined;
+            return loadedRows < lastPage.total ? allPages.length : undefined;
         },
     });
 
     const mutation = useMutation<
         CreativeRow,
         Error,
-        { id: number; payload: CreativeUpdatePayload },
-        { prev?: InfiniteData<ListResponse> }
+        EditVariables,
+        EditContext
     >({
         mutationFn: ({ id, payload }) =>
             apiClient
                 .patch<{ row: CreativeRow }>(`/creatives/${id}`, payload)
                 .then((res) => res.data.row),
-        onMutate: async (variables) => {
-            await queryClient.cancelQueries({ queryKey });
 
-            const prev =
-                queryClient.getQueryData<InfiniteData<ListResponse>>(queryKey);
+        onMutate: async (variables) => {
+            await queryClient.cancelQueries({
+                queryKey: CREATIVES_QUERY_KEY,
+            });
+
+            const previousData =
+                queryClient.getQueryData<InfiniteData<ListResponse>>(
+                    CREATIVES_QUERY_KEY,
+                );
 
             queryClient.setQueryData<InfiniteData<ListResponse> | undefined>(
-                queryKey,
+                CREATIVES_QUERY_KEY,
                 (old) => {
                     if (!old) return old;
 
-                    const pages = old.pages.map((page) => ({
-                        ...page,
-                        rows: page.rows.map((row) =>
-                            row.id === variables.id
-                                ? { ...row, ...variables.payload }
-                                : row,
-                        ),
-                    }));
-
-                    return { ...old, pages };
+                    return {
+                        ...old,
+                        pages: old.pages.map((page) => ({
+                            ...page,
+                            rows: page.rows.map((row) =>
+                                row.id === variables.id
+                                    ? { ...row, ...variables.payload }
+                                    : row,
+                            ),
+                        })),
+                    };
                 },
             );
 
-            return { prev };
+            return { previousData };
         },
-        onError: (_err, _vars, ctx) => {
-            if (ctx?.prev) {
-                queryClient.setQueryData(queryKey, ctx.prev);
+
+        onError: (_error, _variables, context) => {
+            if (context?.previousData) {
+                queryClient.setQueryData(
+                    CREATIVES_QUERY_KEY,
+                    context.previousData,
+                );
             }
         },
     });
 
-    return { listQuery, mutation, queryKey };
+    return { listQuery, mutation };
 }

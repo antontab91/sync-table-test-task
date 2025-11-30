@@ -7,9 +7,9 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import type { CreativeRow } from '../modules/creatives/types';
+import type { CreativeRow } from '../../modules/creatives/types';
 
-import './table.css';
+import styles from './table.module.css';
 
 const SCROLL_THRESHOLD = 400;
 const ROW_HEIGHT = 40;
@@ -76,17 +76,17 @@ const Table: React.FC<Props> = ({
     }, [data.length, virtualizer]);
 
     return (
-        <div className="table">
-            <div className="table__head">
+        <div className={styles.table}>
+            <div className={styles.tableHead}>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <div
                         key={headerGroup.id}
-                        className="table__row table__row--head"
+                        className={`${styles.row} ${styles.rowHead}`}
                     >
                         {headerGroup.headers.map((header) => (
                             <div
                                 key={header.id}
-                                className="table__cell table__cell--head"
+                                className={`${styles.cell} ${styles.cellHead}`}
                                 style={{ width: header.getSize() }}
                             >
                                 {header.isPlaceholder
@@ -103,7 +103,7 @@ const Table: React.FC<Props> = ({
 
             <div
                 ref={scrollRef}
-                className="table__body"
+                className={styles.body}
                 onScroll={handleScroll}
             >
                 <div style={{ paddingTop, paddingBottom }}>
@@ -112,11 +112,11 @@ const Table: React.FC<Props> = ({
                         if (!row) return null;
 
                         return (
-                            <div key={row.id} className="table__row">
+                            <div key={row.id} className={styles.row}>
                                 {row.getVisibleCells().map((cell) => (
                                     <div
                                         key={cell.id}
-                                        className="table__cell"
+                                        className={styles.cell}
                                         style={{ width: cell.column.getSize() }}
                                     >
                                         {flexRender(
@@ -134,4 +134,4 @@ const Table: React.FC<Props> = ({
     );
 };
 
-export default Table;
+export default React.memo(Table);

@@ -6,37 +6,36 @@
     background: #f5f5f5;
 }
 
-.table__head {
+.tableHead {
     background: #fafafa;
     border-bottom: 1px solid #ddd;
 }
 
-.table__row {
+.row {
     display: flex;
 }
 
-.table__row--head {
+.rowHead {
     font-weight: 600;
 }
 
-.table__cell {
+.cell {
     display: flex;
     align-items: center;
     min-height: 40px;
     padding: 0 8px;
-    box-sizing: border-box;
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
     border-bottom: 1px solid #eee;
 }
 
-.table__cell--head {
+.cellHead {
     border-bottom: 1px solid #ddd;
 }
 
-.table__body {
+.body {
     height: calc(100vh - 50px);
     overflow: auto;
     background: #fff;

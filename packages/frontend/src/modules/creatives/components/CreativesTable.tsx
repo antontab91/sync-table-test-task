@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 
-import Table from '../../../components/Tabale';
+import Table from '../../../components/Table';
 import { useCreativesQuery } from '../hooks/useCreativesQuery';
 import { useCreativesRealtime } from '../hooks/useCreativesRealtime';
 import { useCreativesTable } from '../hooks/useCreativesTable';

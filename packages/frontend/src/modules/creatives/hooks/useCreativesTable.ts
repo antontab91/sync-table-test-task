@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 
-import EditableTextCell from '../components/EditableTextCell';
-import EditableNumberCell from '../components/EditableNumberCell';
-import EditableSelectCell from '../components/EditableSelectCell';
+import EditableTextCell from '../../../components/EditableTextCell';
+import EditableNumberCell from '../../../components/EditableNumberCell';
+import EditableSelectCell from '../../../components/EditableSelectCell';
 import type { CreativeRow, CreativeUpdatePayload } from '../types';
 
 interface Params {

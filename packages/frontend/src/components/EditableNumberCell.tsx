@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface Props {
     value: number;
@@ -6,11 +6,7 @@ interface Props {
 }
 
 const EditableNumberCell: React.FC<Props> = ({ value, onChange }) => {
-    const [inner, setInner] = useState<string>(String(value));
-
-    useEffect(() => {
-        setInner(String(value));
-    }, [value]);
+    const [inner, setInner] = useState(String(value));
 
     const handleBlur = () => {
         const parsed = Number(inner);
@@ -27,9 +23,14 @@ const EditableNumberCell: React.FC<Props> = ({ value, onChange }) => {
             value={inner}
             onChange={(e) => setInner(e.target.value)}
             onBlur={handleBlur}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    e.currentTarget.blur();
+                }
+            }}
             style={{ width: '100%' }}
         />
     );
 };
 
-export default EditableNumberCell;
+export default React.memo(EditableNumberCell);

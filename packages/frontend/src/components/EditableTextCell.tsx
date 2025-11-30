@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface Props {
     value: string;
@@ -7,10 +7,6 @@ interface Props {
 
 const EditableTextCell: React.FC<Props> = React.memo(({ value, onChange }) => {
     const [inner, setInner] = useState(value);
-
-    useEffect(() => {
-        setInner(value);
-    }, [value]);
 
     const handleBlur = () => {
         if (inner !== value) {
@@ -24,9 +20,14 @@ const EditableTextCell: React.FC<Props> = React.memo(({ value, onChange }) => {
             value={inner}
             onChange={(e) => setInner(e.target.value)}
             onBlur={handleBlur}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    e.currentTarget.blur();
+                }
+            }}
             style={{ width: '100%' }}
         />
     );
 });
 
-export default EditableTextCell;
+export default React.memo(EditableTextCell);
