@@ -13,9 +13,10 @@ COPY packages/api ./packages/api
 # Ставим зависимости только для API (включая devDependencies и typescript)
 RUN pnpm install --filter api... --prod=false
 
-# Собираем TypeScript
 WORKDIR /app/packages/api
-RUN pnpm build
+
+# Сборка + копирование SQL в dist/db/sql
+RUN pnpm build && mkdir -p dist/db && cp -r src/db/sql dist/db
 
 EXPOSE 4000
 CMD ["node", "dist/main.js"]
