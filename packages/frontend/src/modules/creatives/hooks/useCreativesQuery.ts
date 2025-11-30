@@ -35,7 +35,7 @@ function fetchCreatives(page: number): Promise<ListResponse> {
         .then((res) => res.data);
 }
 
-export function useCreativesQuery() {
+export default function useCreativesQuery() {
     const queryClient = useQueryClient();
 
     const listQuery = useInfiniteQuery({

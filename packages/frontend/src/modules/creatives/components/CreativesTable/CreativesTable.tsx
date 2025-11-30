@@ -1,10 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 
-import Table from '../../../components/Table';
-import { useCreativesQuery } from '../hooks/useCreativesQuery';
-import { useCreativesRealtime } from '../hooks/useCreativesRealtime';
-import { useCreativesTable } from '../hooks/useCreativesTable';
-import type { CreativeUpdatePayload } from '../types';
+import Table from '../../../../components/Table';
+import {
+    useCreativesQuery,
+    useCreativesRealtime,
+    useCreativesTable,
+} from '../../hooks';
+
+import type { CreativeUpdatePayload } from '../../types';
 
 const CreativesTable: React.FC = () => {
     const { listQuery, mutation } = useCreativesQuery();

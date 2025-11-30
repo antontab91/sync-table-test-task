@@ -1,14 +1,13 @@
 import React, { useMemo } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 
-import EditableTextCell from '../../../components/EditableTextCell';
-import EditableNumberCell from '../../../components/EditableNumberCell';
-import EditableSelectCell from '../../../components/EditableSelectCell';
-import type { CreativeRow, CreativeUpdatePayload } from '../types';
+import {
+    EditableTextCell,
+    EditableNumberCell,
+    EditableSelectCell,
+} from '../../../components';
 
-interface Params {
-    onEdit: (id: number, patch: CreativeUpdatePayload) => void;
-}
+import type { CreativeRow, CreativeUpdatePayload } from '../types';
 
 const STATUS_OPTIONS = [
     { value: 'draft', label: 'Draft' },
@@ -16,7 +15,11 @@ const STATUS_OPTIONS = [
     { value: 'paused', label: 'Paused' },
 ];
 
-export function useCreativesTable({ onEdit }: Params) {
+interface Params {
+    onEdit: (id: number, patch: CreativeUpdatePayload) => void;
+}
+
+export default function useCreativesTable({ onEdit }: Params) {
     const columns = useMemo<ColumnDef<CreativeRow, unknown>[]>(() => {
         return [
             {

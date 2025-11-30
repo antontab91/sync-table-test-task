@@ -9,7 +9,7 @@ interface WsEvent<T = unknown> {
     payload: T;
 }
 
-export function useCreativesRealtime(): void {
+export default function useCreativesRealtime(): void {
     const queryClient = useQueryClient();
     const queryKey = ['creatives'];
 
