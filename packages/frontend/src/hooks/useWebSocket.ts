@@ -20,7 +20,7 @@ export function useWebSocket<TEvent>({
                 const parsed = JSON.parse(event.data) as TEvent;
                 onMessage(parsed);
             } catch {
-                // игнор
+                throw Error('Failed to parse WebSocket message');
             }
         };
 

@@ -3,36 +3,58 @@ import {
     flexRender,
     getCoreRowModel,
     useReactTable,
+    type ColumnDef,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-import type { BaseRow, TableProps } from './types';
+import type { CreativeRow } from '../modules/creatives/types';
+
 import './table.css';
 
 const SCROLL_THRESHOLD = 400;
+const ROW_HEIGHT = 40;
 
-function TableInner<TData extends BaseRow>({
+interface Props {
+    columns: ColumnDef<CreativeRow, unknown>[];
+    data: CreativeRow[];
+    total: number;
+    isLoading: boolean;
+    loadMore: () => void;
+}
+
+const Table: React.FC<Props> = ({
     columns,
     data,
     total,
     isLoading,
     loadMore,
-}: TableProps<TData>) {
-    const table = useReactTable<TData>({
+}) => {
+    const scrollRef = useRef<HTMLDivElement | null>(null);
+
+    const table = useReactTable<CreativeRow>({
         data,
-        columns: columns,
+        columns: columns as ColumnDef<CreativeRow, unknown>[],
         getCoreRowModel: getCoreRowModel(),
         getRowId: (row) => String(row.id),
     });
 
-    const parentRef = useRef<HTMLDivElement | null>(null);
+    const rows = table.getRowModel().rows;
 
-    const rowVirtualizer = useVirtualizer({
-        count: data.length,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 40,
-        overscan: 20,
+    const virtualizer = useVirtualizer({
+        count: rows.length,
+        getScrollElement: () => scrollRef.current,
+        estimateSize: () => ROW_HEIGHT,
+        overscan: 30,
     });
+
+    const virtualRows = virtualizer.getVirtualItems();
+    const totalHeight = virtualizer.getTotalSize();
+
+    const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
+    const paddingBottom =
+        virtualRows.length > 0
+            ? totalHeight - virtualRows[virtualRows.length - 1].end
+            : 0;
 
     const handleScroll = useCallback(
         (event: React.UIEvent<HTMLDivElement>) => {
@@ -42,11 +64,7 @@ function TableInner<TData extends BaseRow>({
             const distanceToBottom =
                 el.scrollHeight - el.scrollTop - el.clientHeight;
 
-            if (
-                distanceToBottom < SCROLL_THRESHOLD &&
-                !isLoading &&
-                data.length < total
-            ) {
+            if (distanceToBottom < SCROLL_THRESHOLD) {
                 loadMore();
             }
         },
@@ -54,24 +72,21 @@ function TableInner<TData extends BaseRow>({
     );
 
     useEffect(() => {
-        rowVirtualizer.measure();
-    }, [data.length, rowVirtualizer]);
-
-    const headerGroups = table.getHeaderGroups();
-    const rows = table.getRowModel().rows;
+        virtualizer.measure();
+    }, [data.length, virtualizer]);
 
     return (
-        <div className="table-root">
-            <div className="table-head">
-                {headerGroups.map((headerGroup) => (
+        <div className="table">
+            <div className="table__head">
+                {table.getHeaderGroups().map((headerGroup) => (
                     <div
                         key={headerGroup.id}
-                        className="table-row table-row-head"
+                        className="table__row table__row--head"
                     >
                         {headerGroup.headers.map((header) => (
                             <div
                                 key={header.id}
-                                className="table-col table-col-head"
+                                className="table__cell table__cell--head"
                                 style={{ width: header.getSize() }}
                             >
                                 {header.isPlaceholder
@@ -86,35 +101,22 @@ function TableInner<TData extends BaseRow>({
                 ))}
             </div>
 
-            <div ref={parentRef} className="table-body" onScroll={handleScroll}>
-                <div
-                    style={{
-                        height: rowVirtualizer.getTotalSize(),
-                        position: 'relative',
-                        width: '100%',
-                    }}
-                >
-                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            <div
+                ref={scrollRef}
+                className="table__body"
+                onScroll={handleScroll}
+            >
+                <div style={{ paddingTop, paddingBottom }}>
+                    {virtualRows.map((virtualRow) => {
                         const row = rows[virtualRow.index];
                         if (!row) return null;
 
                         return (
-                            <div
-                                key={row.id}
-                                className="table-row"
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    transform: `translateY(${virtualRow.start}px)`,
-                                    willChange: 'transform',
-                                }}
-                            >
+                            <div key={row.id} className="table__row">
                                 {row.getVisibleCells().map((cell) => (
                                     <div
                                         key={cell.id}
-                                        className="col"
+                                        className="table__cell"
                                         style={{ width: cell.column.getSize() }}
                                     >
                                         {flexRender(
@@ -130,6 +132,6 @@ function TableInner<TData extends BaseRow>({
             </div>
         </div>
     );
-}
+};
 
-export default TableInner;
+export default Table;

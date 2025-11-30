@@ -12,7 +12,7 @@ import type {
     ListResponse,
 } from '../types';
 
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 100;
 
 function fetchCreatives(page: number): Promise<ListResponse> {
     return apiClient

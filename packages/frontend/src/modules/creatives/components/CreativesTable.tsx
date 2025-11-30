@@ -1,4 +1,3 @@
-// packages/frontend/src/modules/creatives/components/CreativesTable.tsx
 import React, { useCallback, useMemo } from 'react';
 
 import Table from '../../../components/Tabale';
@@ -12,9 +11,10 @@ const CreativesTable: React.FC = () => {
 
     useCreativesRealtime();
 
-    const pages = listQuery.data?.pages ?? [];
+    const pages = useMemo(() => listQuery.data?.pages || [], [listQuery.data]);
     const rows = useMemo(() => pages.flatMap((page) => page.rows), [pages]);
-    const total = pages[0]?.total ?? 0;
+
+    const total = pages[0]?.total || 0;
 
     const handleEdit = useCallback(
         (id: number, patch: CreativeUpdatePayload) => {
@@ -32,9 +32,8 @@ const CreativesTable: React.FC = () => {
             total={total}
             isLoading={listQuery.isLoading || listQuery.isFetchingNextPage}
             loadMore={() => listQuery.fetchNextPage()}
-            // onScrollEndThreshold={400}
         />
     );
 };
 
-export default CreativesTable;
+export default React.memo(CreativesTable);

@@ -1,4 +1,3 @@
-// packages/frontend/src/modules/creatives/hooks/useCreativesTable.ts
 import React, { useMemo } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 

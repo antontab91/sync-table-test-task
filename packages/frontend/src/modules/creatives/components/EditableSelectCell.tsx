@@ -1,4 +1,3 @@
-// packages/frontend/src/modules/creatives/components/EditableSelectCell.tsx
 import React from 'react';
 
 interface Option {

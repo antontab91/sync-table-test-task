@@ -1,4 +1,3 @@
-// packages/frontend/src/modules/creatives/types.ts
 export interface CreativeRow {
     id: number;
     name: string;

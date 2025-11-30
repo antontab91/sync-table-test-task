@@ -1,95 +1,43 @@
-/* Корневой контейнер таблицы */
-.table-root {
+.table {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    width: 100%;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-        sans-serif;
-    font-size: 13px;
-    color: #111827;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f5f5f5;
 }
 
-/* Обёртка хедера */
-.table-head {
-    flex: 0 0 auto;
-    border: 1px solid #e5e7eb;
-    border-bottom: none;
-    background: #f9fafb;
+.table__head {
+    background: #fafafa;
+    border-bottom: 1px solid #ddd;
 }
 
-/* Ряд колонок (используется и для хедера, и для строк) */
-.row-cols {
+.table__row {
     display: flex;
 }
 
-/* Скроллируемая часть таблицы */
-.table-body {
-    flex: 1 1 auto;
-    border: 1px solid #e5e7eb;
-    overflow: auto;
-    background: #ffffff;
+.table__row--head {
+    font-weight: 600;
 }
 
-/* Одна строка данных */
-.table-row {
-    display: flex;
-}
-
-/* Одна ячейка */
-.col {
-    padding: 4px 8px;
-    min-height: 28px;
+.table__cell {
     display: flex;
     align-items: center;
+    min-height: 40px;
+    padding: 0 8px;
     box-sizing: border-box;
-    border-right: 1px solid #f3f4f6;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    border-bottom: 1px solid #eee;
 }
 
-.col:last-child {
-    border-right: none;
+.table__cell--head {
+    border-bottom: 1px solid #ddd;
 }
 
-/* Ячейки хедера */
-.table-head .col {
-    font-weight: 600;
-    background: #f3f4f6;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-/* Зебра для строк */
-.table-body .table-row:nth-child(2n) .col {
-    background: #fcfcfc;
-}
-
-/* Инпуты/селекты внутри ячеек */
-.table-input,
-.table-number,
-.table-select {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid #d1d5db;
-    border-radius: 3px;
-    padding: 2px 4px;
-    font: inherit;
-    background: #ffffff;
-}
-
-.table-input:focus,
-.table-number:focus,
-.table-select:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
-}
-
-/* Лоадер под таблицей */
-.table-loading {
-    padding: 8px;
-    text-align: center;
-    font-size: 12px;
-    color: #6b7280;
+.table__body {
+    height: calc(100vh - 50px);
+    overflow: auto;
+    background: #fff;
 }

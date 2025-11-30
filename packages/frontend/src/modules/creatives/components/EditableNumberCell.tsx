@@ -1,4 +1,3 @@
-// packages/frontend/src/modules/creatives/components/EditableNumberCell.tsx
 import React, { useState, useEffect } from 'react';
 
 interface Props {
